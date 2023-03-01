@@ -1,8 +1,8 @@
-I created this program for my robotics project where the robots are supposed to pick up square shaped foam cubes of different colours using a Raspberry-Pi camera module's live video feed in real time.
+I created this program for my robotics project where the robots are supposed to pick up square shaped foam cubes of different colours using a Raspberry-Pi camera module's live video feed in real time. However it supports windows, mac or linux operating system with built-in  or portable camera.
 <br />
 <br />
 
-#Note: This program needs Python as well as OpenCV installed in order to run. Since camera sensors are different in each devices, you will have to calibrate the color values for your device's camera so that it can work properly. In my case, I am running the program from my Macbook Pro's uncalibrated camera insted of my Raspberry-Pi's camera for the screenshots so it is not detecting some colours
+#Note: This program needs Python as well as OpenCV installed in order to run. Since camera sensors are different in each devices, you will have to calibrate the color values for your device's camera so that it can work properly. In my case, I am running the program from my Macbook Pro's uncalibrated camera insted of my Raspberry-Pi's camera for the screenshots so it is not detecting some colours.
 
 How to use it:<br />
 1) Install Python and OpenCV, then download the code and open it using your preferred IDE <br />
