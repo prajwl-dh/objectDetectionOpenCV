@@ -1,4 +1,5 @@
-A complete web store using HTML, CSS, Javascript as frontend and pHP as backend.<br />
+I created this program for my robotics project where the robots are supposed to pick up square shaped foam cubes of different colours using a Raspberry-Pi camera module's live video feed in real time.
+<br />
 <br />
 Overview :<br />
 1) Admin Page and features <br />
