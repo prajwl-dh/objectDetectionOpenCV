@@ -4,26 +4,41 @@
 # Import the necessary packages
 import cv2
 import numpy as np
+import writeToDatabase as db
 
 # Define range of colors for each cube
 red_lower = np.array([155, 133, 84], dtype=np.uint8)
 red_upper = np.array([179, 255, 255], dtype=np.uint8)
 blue_lower = np.array([100, 50, 50], dtype=np.uint8)
 blue_upper = np.array([124, 255, 255], dtype=np.uint8)
-green_lower = np.array([70, 190, 64], dtype=np.uint8)
+green_lower = np.array([70, 120, 64], dtype=np.uint8)
 green_upper = np.array([86, 255, 255], dtype=np.uint8)
 yellow_lower = np.array([25, 122, 94], dtype=np.uint8)
 yellow_upper = np.array([42, 255, 255], dtype=np.uint8)
 purple_lower = np.array([136, 72, 54], dtype=np.uint8)
 purple_upper = np.array([150, 150, 191], dtype=np.uint8)
+orange_lower = np.array([0, 140, 148], dtype=np.uint8)
+orange_upper = np.array([180, 255, 255], dtype=np.uint8)
 
 # Set up the capture object
 cap = cv2.VideoCapture(0)
 
-#While loop to capture frames
+
 while True:
     # Capture frame-by-frame
     ret, frame = cap.read()
+    
+    # Get the height and width of the frame
+    height, width = frame.shape[:2]
+
+    # Draw a circle at the center of the frame
+    center_x = int(width / 2)
+    center_y = int(height / 2)
+    radius = 50
+    cv2.circle(frame, (center_x, center_y), radius, (0, 255, 0), 2)
+
+    # Print the (x,y) coordinate of the center of the circle
+    #print(f"Center of circle: x={center_x}, y={center_y}")
 
     # Convert to HSV
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
@@ -57,19 +72,47 @@ while True:
     purple_contours, _ = cv2.findContours(purple_gray, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
     # Draw contours on the original frame for each color
-    #If the camera sees a red coloured object it will draw a red rectangle around it
     for cnt in red_contours:
         area = cv2.contourArea(cnt)
         if area < 2500 or area > 20000:
             continue
         peri = cv2.arcLength(cnt, True)
         approx = cv2.approxPolyDP(cnt, 0.02 * peri, True)
-        rect = cv2.minAreaRect(cnt)
-        box = cv2.boxPoints(rect)
-        box = np.intp(box)
-        frame = cv2.drawContours(frame, [box], 0, (50, 0, 255), 2)
+        if len(approx) == 4:
+            rect = cv2.minAreaRect(cnt)
+            box = cv2.boxPoints(rect)
+            box = np.intp(box)
+            frame = cv2.drawContours(frame, [box], 0, (50, 0, 255), 2)
+            cv2.putText(frame, 'Red color', (box[0][0], box[0][1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+            
+            x, y, w, h = box.astype(int)
+            # Print the x and y position of the red foam cube
+            #x is the top left corner , y is the bottom right corner
+            #print(f"Red foam cube position: x={x}, y={y}")
+            
+            # Calculate the centroid of the contour
+            M = cv2.moments(cnt)
+            if M["m00"] != 0:
+                cX = int(M["m10"] / M["m00"])
+                cY = int(M["m01"] / M["m00"])
 
-    #If the camera sees a blue coloured object it will draw a red rectangle around it
+                # Draw the centroid on the frame
+                cv2.circle(frame, (cX, cY), 5, (0, 255, 0), -1)
+
+                # Print the centroid coordinates
+                #print("Red foam cube centroid position: x={}, y={}".format(cX, cY))
+                
+            if(cX > center_x + 50):
+                print("Move Right")
+            elif(cX < center_x - 50):
+                print("Move Left")
+            elif(cY > center_y + 50):
+                print("Move Up")
+            elif(cY < center_y - 50):
+                print("Move Down")
+            else:
+                print("At Center")
+
     for cnt in blue_contours:
         area = cv2.contourArea(cnt)
         if area < 2500 or area > 20000:
@@ -81,45 +124,161 @@ while True:
             box = cv2.boxPoints(rect)
             box = np.intp(box)
             frame = cv2.drawContours(frame, [box], 0, (255, 0, 0), 2)
+            cv2.putText(frame, 'Blue color', (box[0][0], box[0][1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)
+            
+            x, y, w, h = box.astype(int)
+            # Print the x and y position of the red foam cube
+            #x is the top left corner , y is the bottom right corner
+            #print(f"Red foam cube position: x={x}, y={y}")
+            
+            # Calculate the centroid of the contour
+            M = cv2.moments(cnt)
+            if M["m00"] != 0:
+                cX = int(M["m10"] / M["m00"])
+                cY = int(M["m01"] / M["m00"])
 
-    #If the camera sees a green coloured object it will draw a red rectangle around it
+                # Draw the centroid on the frame
+                cv2.circle(frame, (cX, cY), 5, (0, 255, 0), -1)
+
+                # Print the centroid coordinates
+                #print("Red foam cube centroid position: x={}, y={}".format(cX, cY))
+                
+            if(cX > center_x + 50):
+                print("Move Right")
+            elif(cX < center_x - 50):
+                print("Move Left")
+            elif(cY > center_y + 50):
+                print("Move Up")
+            elif(cY < center_y - 50):
+                print("Move Down")
+            else:
+                print("At Center")
+
     for cnt in green_contours:
         area = cv2.contourArea(cnt)
         if area < 2500 or area > 20000:
             continue
         peri = cv2.arcLength(cnt, True)
         approx = cv2.approxPolyDP(cnt, 0.02 * peri, True)
-        rect = cv2.minAreaRect(cnt)
-        box = cv2.boxPoints(rect)
-        box = np.intp(box)
-        frame = cv2.drawContours(frame, [box], 0, (0, 255, 0), 2)
+        if len(approx) == 4:
+            rect = cv2.minAreaRect(cnt)
+            box = cv2.boxPoints(rect)
+            box = np.intp(box)
+            frame = cv2.drawContours(frame, [box], 0, (0, 255, 0), 2)
+            cv2.putText(frame, 'Green color', (box[0][0], box[0][1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+            
+            x, y, w, h = box.astype(int)
+            # Print the x and y position of the red foam cube
+            #x is the top left corner , y is the bottom right corner
+            #print(f"Red foam cube position: x={x}, y={y}")
+            
+            # Calculate the centroid of the contour
+            M = cv2.moments(cnt)
+            if M["m00"] != 0:
+                cX = int(M["m10"] / M["m00"])
+                cY = int(M["m01"] / M["m00"])
 
-    #If the camera sees a yellow coloured object it will draw a red rectangle around it
+                # Draw the centroid on the frame
+                cv2.circle(frame, (cX, cY), 5, (0, 255, 0), -1)
+
+                # Print the centroid coordinates
+                #print("Red foam cube centroid position: x={}, y={}".format(cX, cY))
+                
+            if(cX > center_x + 50):
+                print("Move Right")
+            elif(cX < center_x - 50):
+                print("Move Left")
+            elif(cY > center_y + 50):
+                print("Move Up")
+            elif(cY < center_y - 50):
+                print("Move Down")
+            else:
+                print("At Center")
+
     for cnt in yellow_contours:
         area = cv2.contourArea(cnt)
         if area < 2500 or area > 20000:
             continue
         peri = cv2.arcLength(cnt, True)
         approx = cv2.approxPolyDP(cnt, 0.02 * peri, True)
-        rect = cv2.minAreaRect(cnt)
-        box = cv2.boxPoints(rect)
-        box = np.intp(box)
-        frame = cv2.drawContours(frame, [box], 0, (0, 255, 255), 2)
+        if len(approx) == 4:
+            rect = cv2.minAreaRect(cnt)
+            box = cv2.boxPoints(rect)
+            box = np.intp(box)
+            frame = cv2.drawContours(frame, [box], 0, (0, 255, 255), 2)
+            cv2.putText(frame, 'Yellow color', (box[0][0], box[0][1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
+            
+            x, y, w, h = box.astype(int)
+            # Print the x and y position of the red foam cube
+            #x is the top left corner , y is the bottom right corner
+            #print(f"Red foam cube position: x={x}, y={y}")
+            
+            # Calculate the centroid of the contour
+            M = cv2.moments(cnt)
+            if M["m00"] != 0:
+                cX = int(M["m10"] / M["m00"])
+                cY = int(M["m01"] / M["m00"])
 
-    #If the camera sees a purple coloured object it will draw a red rectangle around it
+                # Draw the centroid on the frame
+                cv2.circle(frame, (cX, cY), 5, (0, 255, 0), -1)
+
+                # Print the centroid coordinates
+                #print("Red foam cube centroid position: x={}, y={}".format(cX, cY))
+                
+            if(cX > center_x + 50):
+                print("Move Right")
+            elif(cX < center_x - 50):
+                print("Move Left")
+            elif(cY > center_y + 50):
+                print("Move Up")
+            elif(cY < center_y - 50):
+                print("Move Down")
+            else:
+                print("At Center")
+
     for cnt in purple_contours:
         area = cv2.contourArea(cnt)
         if area < 2500 or area > 20000:
             continue
         peri = cv2.arcLength(cnt, True)
         approx = cv2.approxPolyDP(cnt, 0.02 * peri, True)
-        rect = cv2.minAreaRect(cnt)
-        box = cv2.boxPoints(rect)
-        box = np.intp(box)
-        frame = cv2.drawContours(frame, [box], 0, (255, 0, 127), 2)
+        if len(approx) == 4:
+            rect = cv2.minAreaRect(cnt)
+            box = cv2.boxPoints(rect)
+            box = np.intp(box)
+            frame = cv2.drawContours(frame, [box], 0, (255, 0, 127), 2)
+            cv2.putText(frame, 'Purple color', (box[0][0], box[0][1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 127), 2)
+            
+            x, y, w, h = box.astype(int)
+            # Print the x and y position of the red foam cube
+            #x is the top left corner , y is the bottom right corner
+            #print(f"Red foam cube position: x={x}, y={y}")
+            
+            # Calculate the centroid of the contour
+            M = cv2.moments(cnt)
+            if M["m00"] != 0:
+                cX = int(M["m10"] / M["m00"])
+                cY = int(M["m01"] / M["m00"])
+
+                # Draw the centroid on the frame
+                cv2.circle(frame, (cX, cY), 5, (0, 255, 0), -1)
+
+                # Print the centroid coordinates
+                #print("Red foam cube centroid position: x={}, y={}".format(cX, cY))
+                
+            if(cX > center_x + 50):
+                print("Move Right")
+            elif(cX < center_x - 50):
+                print("Move Left")
+            elif(cY > center_y + 50):
+                print("Move Up")
+            elif(cY < center_y - 50):
+                print("Move Down")
+            else:
+                print("At Center")
 
     # Display the resulting frame
-    cv2.imshow("Object Detection - by Prajwal Dhungana", frame)
+    cv2.imshow("Object Detection", frame)
 
     # Break the loop if 'q' key is pressed
     if cv2.waitKey(1) & 0xFF == ord('q'):
